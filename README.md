@@ -62,7 +62,7 @@ The default arch rootfs user is `stratos` and its password is `stratos`.
 
 ## How do I install to internal storage?
 The exact same way you would for terraOS, as follows;
-1. Boot into stratOS and copy over the image you used to flash your terraOS drive.
+1. Boot into stratOS and copy over the image you used to flash your stratOS drive.
 2. Use GParted or `sudo fdisk -l` to find your internal storage. Replace `/dev/mmcblkX` in the rest of the steps with the internal storage device.
 3. Run `sudo dd if=<image> of=/dev/mmcblkX status=progress bs=16M oflag=direct` to write the image to the internal storage. Replace `<image>` with the path to the image you copied.
 

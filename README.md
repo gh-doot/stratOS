@@ -30,7 +30,7 @@ For starters, please make sure you're using an Arch Linux system, as r58Playz or
 
 <board_recovery.bin> = The recovery image of **your chromebook's** board. Find in [https://chrome100.dev/](https://chrome100.dev/).
 
-**=> This could look like `chromeos_16033.58.0_octopus_recovery_stable-channel_mp-v35.bin`, depending on your chromebook's board. **
+**=> This could look like `chromeos_16033.58.0_octopus_recovery_stable-channel_mp-v35.bin`, depending on your chromebook's board.**
 
 [] = You can modify this as you like, although it's recommended to keep it the same (but keep the extension or not if there is or isn't one, preferably).
 ### 1. Arch Linux Only

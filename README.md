@@ -1,5 +1,5 @@
-# terraOS
-Boot Linux-based operating systems from a RMA shim.
+# stratOS
+A fork of TerraOS that still lets you boot Linux-based operating systems from a RMA shim.
 
 ![Image of terraOS bootloader](preview.png)
 

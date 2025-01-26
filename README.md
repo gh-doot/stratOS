@@ -1,5 +1,6 @@
 # stratOS
 A fork of TerraOS that still lets you boot Linux-based operating systems from a RMA shim.
+Hats off to r58Playz for the original, though.
 
 ![Image of terraOS bootloader](preview.png)
 

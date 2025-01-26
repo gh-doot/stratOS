@@ -125,12 +125,37 @@ mount $(get_partition ${OUT_DEV} 3) mnt
 tar xf terra-stage1.tar -C mnt
 # not sure if im the only one that finds the UI to literally kamikaze itself without building/unstripping it..
 # aka. the ui is absolutely broken without this patch for me, might be wrong tho..
-cargo build
-rm -rf mnt/bin/terraos
-rsync -ah --progress ../target/debug/terraos mnt/bin/terraos
+# build thy project
+cargo build || die "the build failed."
+
+# check sha256sum of debug binary
+SHA256_DEBUG=$(sha256sum ../target/debug/terraos | awk '{print $1}')
+SHA256_MNT=$(sha256sum mnt/bin/terraos | awk '{print $1}' 2>/dev/null || echo "MISSING")
+
+if [ "$SHA256_DEBUG" = "$SHA256_MNT" ]; then
+    die "sha256sums *do* match! check for outdated files/misaligned mounts."
+fi
+
+# ok lets destroy the old and copy the new binary
+rm -rf mnt/bin/terraos || die "failed to remove old binary."
+dd if=../target/debug/terraos of=mnt/bin/terraos bs=4M conv=fsync
+sudo chmod 755 mnt/bin/terraos
+sudo chown root:root mnt/bin/terraos
+sync
+
+# i have trust issues with this binary
+# sha256 check again
+SHA256_DEBUG=$(sha256sum ../target/debug/terraos | awk '{print $1}')
+SHA256_MNT=$(sha256sum mnt/bin/terraos | awk '{print $1}' 2>/dev/null || die "binary file went missing after copy!!! this definitely should not happen")
+
+if [ "$SHA256_DEBUG" != "$SHA256_MNT" ]; then
+    die "sha256sums don't match after new copy. probably something went wrong. you can try manually."
+fi
+
 cp -r shimmnt/lib/modules/ mnt/lib/
 umount shimmnt
 umount mnt
+
 
 mount $(get_partition ${OUT_DEV} 1) mnt
 mkdir -p mnt/dev_image/etc/

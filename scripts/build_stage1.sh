@@ -9,7 +9,7 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-git clone https://github.com/r58Playz/buildroot -b terra-stage1
+git clone https://github.com/gh-doot/buildroot -b terra-stage1
 cd buildroot
 make ${1}_defconfig 
 make

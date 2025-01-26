@@ -5,11 +5,23 @@ help(){
 
 Builds the TerraOS bootloader."
 }
+check_sudo_e() {
+    if [ -n "$SUDO_COMMAND" ]; then
+        if [ "$HOME" != "/root" ]; then
+            echo "Script is running with sudo -E (environment variables preserved), good."
+        else
+            die "ok, you ran this as root, that's good, now just add an -E to that, or sudo -E. for building purposes."
+        fi
+    else
+        die "ok, you ran this as root, that's good, now just add an -E to that, or sudo -E. for building purposes."
+    fi
+}
 
 die() {
-  echo -e "\x1b[31m${1}\x1b[0m" >&2
-  exit 1
+    echo -e "\x1b[31m${1}\x1b[0m" >&2
+    exit 1
 }
+check_sudo_e
 
 die_help() {
   echo -e "\x1b[31m${1}\x1b[0m" >&2
@@ -111,6 +123,11 @@ mount $(get_partition ${SHIM_DEV} 3) shimmnt -o ro
 mkdir mnt
 mount $(get_partition ${OUT_DEV} 3) mnt
 tar xf terra-stage1.tar -C mnt
+# not sure if im the only one that finds the UI to literally kamikaze itself without building/unstripping it..
+# aka. the ui is absolutely broken without this patch for me, might be wrong tho..
+cargo build
+rm -rf mnt/bin/terraos
+rsync -ah --progress ../target/debug/terraos mnt/bin/terraos
 cp -r shimmnt/lib/modules/ mnt/lib/
 umount shimmnt
 umount mnt

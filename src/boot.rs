@@ -1,12 +1,32 @@
-use crate::*;
-
 use nix::mount;
 use nix::sys::stat;
 use nix::unistd;
 use std::ffi::CString;
 use std::fs;
-use std::io::Read;
+use std::io::{self,Write,Read};
 use std::os::linux::fs::MetadataExt;
+use crate::tui;
+use crate::TERMIOS_BACKUP;
+use crate::screens; // Adjust if `common` is nested under `screens`
+use crate::utils;
+pub fn update_status(message: &str, termsize: tui::Point, center: tui::Point) {
+    // Clear the area where the status message will go, but not the box itself
+    tui::move_cursor(tui::Point {
+        row: center.row + 1, // Just below the "Mounting" text
+        col: center.col - (message.len() / 2) as u16, // Center the message
+    });
+
+    // Clear the current line where the message is
+    print!("\x1b[2K"); // Clears the current line
+
+    // Print the new status message
+    print!("{}", message);
+    tui::flush();
+
+    // Redraw the box to ensure it's intact
+    tui::draw_box(tui::Point { row: 0, col: 0 }, termsize);
+    tui::flush();
+}
 
 pub fn boot_from_partition(dev: String, termsize: tui::Point, init_cmd: &str) {
     let center = tui::get_center(tui::Point { row: 0, col: 0 }, termsize);
@@ -23,11 +43,33 @@ pub fn boot_from_partition(dev: String, termsize: tui::Point, init_cmd: &str) {
 
     tui::flush();
 
-    utils::run_fsck(&dev)
-        .expect("Failed to check partition for errors");
+    update_status("Requesting filesystem check...", termsize, center);
+    // Center the prompt
+    let prompt = "Do you want to check the partition for errors? (y/n): ";
+    let prompt_len = prompt.len() as u16;
+    let prompt_center = tui::Point {
+        row: center.row + 2, // Move the prompt down a bit from the center
+        col: center.col - prompt_len / 2,
+    };
+    tui::move_cursor(prompt_center);
+    print!("{}", prompt);
 
+    io::stdout().flush().expect("Failed to flush stdout");
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read input");
+    let input = input.trim().to_lowercase();
+
+    if input == "y" || input == "yes" {
+        update_status("Checking the filesystem...", termsize, center);
+        utils::run_fsck(&dev).expect("Failed to check partition for errors");
+    }
+
+    update_status("Creating /newroot...", termsize, center);
     unistd::mkdir("/newroot", stat::Mode::S_IRWXU).expect("Failed to create newroot");
     // we use /bin/mount and not nix::mount::* because /bin/mount has autodetection of fstype
+
+    update_status("Mounting partition to /newroot...", termsize, center);
     utils::run_cmd("/bin/mount", &[dev, "/newroot".into()]).expect("Failed to mount partition");
 
     boot_from_newroot(termsize, center, false, init_cmd);
@@ -137,14 +179,18 @@ fn boot_from_newroot(termsize: tui::Point, center: tui::Point, keep_oldroot: boo
 
     let mut is_chromeos = false;
 
+    update_status("Checking for ChromeOS...", termsize, center);
     if let Ok(mut lsb_release) = fs::File::open("/newroot/etc/lsb-release") {
         let mut lsb_release_contents = String::new();
         let _ = lsb_release.read_to_string(&mut lsb_release_contents);
         is_chromeos = lsb_release_contents.to_lowercase().contains("chromeos");
     }
 
+
+    update_status("Unmounting /sys...", termsize, center);
     mount::umount2("/sys", mount::MntFlags::MNT_DETACH).expect("Failed to unmount /sys");
     if is_chromeos {
+        update_status("Moving /dev to /newroot/dev...", termsize, center);
         mount::mount::<str, str, str, str>(
             Some("/dev"),
             "/newroot/dev",
@@ -154,16 +200,24 @@ fn boot_from_newroot(termsize: tui::Point, center: tui::Point, keep_oldroot: boo
         )
         .expect("Failed to move /dev to /newroot/dev");
     } else {
+        update_status("Unmounting /dev...", termsize, center);
         mount::umount2("/dev", mount::MntFlags::MNT_DETACH).expect("Failed to unmount /dev");
     }
+
+    update_status("Unmounting /data...", termsize, center);
     mount::umount2("/data", mount::MntFlags::MNT_DETACH).expect("Failed to unmount /data");
+    update_status("Unmounting /proc...", termsize, center);
     mount::umount2("/proc", mount::MntFlags::MNT_DETACH).expect("Failed to unmount /proc");
 
     if !keep_oldroot {
+        update_status("Changing directory to /newroot...", termsize, center);
         unistd::chdir("/newroot").expect("Failed to chdir() to /newroot");
+        update_status("pivot_root'ing...", termsize, center);
         unistd::pivot_root(".", ".").expect("Failed to pivot_root");
+        update_status("Unmounting old root...", termsize, center);
         mount::umount2(".", mount::MntFlags::MNT_DETACH).expect("Failed to unmount old root");
     } else {
+        update_status("pivot_rooting...", termsize, center);
         unistd::pivot_root("/newroot", "/newroot/oldroot").expect("Failed to pivot_root");
     }
 
@@ -181,6 +235,7 @@ fn boot_from_newroot(termsize: tui::Point, center: tui::Point, keep_oldroot: boo
         col: center.col - 7 / 2,
     });
     print!("Booting");
+    update_status("All set and ready to boot!", termsize, center);
     screens::common::show_usb_disclaimer(termsize);
     tui::flush();
 

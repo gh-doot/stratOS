@@ -75,7 +75,7 @@ fn draw_main_left_box(
 ) {
     reset_colors();
     if selected {
-        tui::set_fg(171);
+        tui::set_fg(45);
     }
     tui::draw_box(
         tui::Point { row, col },
@@ -106,7 +106,7 @@ fn draw_main_right_box(
 ) {
     reset_colors();
     if selected {
-        tui::set_fg(171);
+        tui::set_fg(45);
     }
 
     tui::draw_box(

@@ -1,6 +1,6 @@
 git clone https://aur.archlinux.org/systemd-chromiumos
 cd systemd-chromiumos
-makepkg -s
+makepkg --skippgpcheck -s
 cp *.pkg.tar.zst ..
 cd ..
 git clone https://aur.archlinux.org/yay

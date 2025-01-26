@@ -1,8 +1,8 @@
-mod boot;
-mod disks;
-mod screens;
-mod tui;
-mod utils;
+pub mod boot;
+pub mod disks;
+pub mod screens;
+pub mod tui;
+pub mod utils;
 
 use screens::main::BootOption;
 
@@ -15,7 +15,7 @@ fn reset_colors() {
     tui::set_bold(false);
     tui::set_underline(false);
     tui::set_bg(16);
-    tui::set_fg(189);
+    tui::set_fg(195);
 }
 
 fn clamp(val: usize, low: usize, high: usize) -> usize {
@@ -36,7 +36,7 @@ pub fn show_selector(topleft: tui::Point, size: usize, items: Vec<String>, selec
         if i == selected {
             tui::set_bold(true);
             tui::set_underline(true);
-            tui::set_fg(171);
+            tui::set_fg(32);
         }
         let offset: u16 = (i - low).try_into().expect("Failed to convert i32 to u16");
         tui::move_cursor(tui::Point {
@@ -122,9 +122,9 @@ fn main() {
         }
         tui::set_bold(false);
         tui::set_underline(false);
-        tui::set_fg(211);
+        tui::set_fg(117);
         println!("terraOS encountered an error.");
-        tui::set_fg(189);
+        tui::set_fg(195);
         println!("backtrace: {}\n", panic_info);
         println!("terraOS will attempt to start a shell in 3 seconds.");
         std::thread::sleep(std::time::Duration::from_secs(3));

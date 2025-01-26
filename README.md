@@ -17,23 +17,22 @@ It's the same as you would in terraOS, check [here](https://github.com/r58Playz/
 ## How do I use it?
 For starters, please make sure you're using an Arch Linux system, as r58Playz originally made scripts solely for Arch Linux and they most likely lack scripts to bootstrap Arch Linux in.
 <shim.bin> = Your shim.bin, which you download from [https://chrome100.dev/](https://chrome100.dev/).
--
+
 => You should see this named something like `octopus.bin` based on your chromebook's board.
--
+
 <bootloader.img> = The bootloader image you've made, depending on whether you've changed the filename or not.
--
+
 => Run `file` on this and see if the output is: `bootloader.img: DOS/MBR boot sector; partition 1 : ID=0xee, start-CHS (0x0,0,2), end-CHS (0x3ff,255,63), startsector 1, 262143 sectors, extended partition table (last)` or similar
--
+
 <reven_recovery.bin> = The recovery image of the `reven` board, find it here: [https://chrome100.dev/board/reven](https://chrome100.dev/board/reven).
--
+
 => It may look like: `chromeos_16033.58.0_reven_recovery_stable-channel_mp-v6.bin`
--
+
 <board_recovery.bin> = The recovery image of **your chromebook's** board. Find in [https://chrome100.dev/](https://chrome100.dev/).
--
+
 => This could look like `chromeos_16033.58.0_octopus_recovery_stable-channel_mp-v35.bin`, depending on your chromebook's board. 
--
+
 [] = You can modify this as you like, although it's recommended to keep it the same (but keep the extension or not if there is or isn't one, preferably).
--
 ### 1. Arch Linux Only
 1. Clone this repo with `git clone https://github.com/gh-doot/stratOS`.
 2. chdir and create a build directory, or just `mkdir build` in it.

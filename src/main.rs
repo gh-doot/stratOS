@@ -123,12 +123,12 @@ fn main() {
         tui::set_bold(false);
         tui::set_underline(false);
         tui::set_fg(117);
-        println!("terraOS encountered an error.");
+        println!("stratOS encountered an error.");
         tui::set_fg(195);
         println!("backtrace: {}\n", panic_info);
-        println!("terraOS will attempt to start a shell in 3 seconds.");
+        println!("stratOS will attempt to start a shell in 3 seconds.");
         std::thread::sleep(std::time::Duration::from_secs(3));
-        println!("terraOS will exit after this shell closes.");
+        println!("stratOS will exit after this shell closes.");
         let child = Command::new("/bin/setsid")
             .args(["-c", "/bin/bash"])
             .spawn();

@@ -26,7 +26,7 @@ fn show_license(topleft: tui::Point) {
 }
 
 fn show_other_info(topleft: tui::Point) {
-    let version = format!("This is terraOS version {VERSION}.");
+    let version = format!("This is terraOS version {VERSION}, *and is modified by stratOS*.");
     let other_info = [
         version.as_str(),
         "",

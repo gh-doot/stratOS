@@ -140,7 +140,7 @@ pub fn show_main_selector(termsize: tui::Point) -> BootOption {
             row: 4,
             col: center.col - 8,
         });
-        print!("terraOS bootloader");
+        print!("stratOS bootloader");
 
         draw_main_left_box(
             center,

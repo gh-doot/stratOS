@@ -4,7 +4,7 @@ use crate::*;
 pub fn show_usb_disclaimer(termsize: tui::Point) {
     // Display the USB disclaimer
     tui::move_cursor(tui::Point { row: termsize.row - 1, col: termsize.col - 41 });
-    print!("Please keep the terraOS drive plugged in.");
+    print!("Please keep the stratOS drive plugged in.");
     
     // Get battery status
     let battery_status = get_battery_status().unwrap_or("Unknown Battery".to_string());

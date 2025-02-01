@@ -20,27 +20,50 @@ pub fn get_kernel_uuid_from_cmdline(file: &str) -> std::io::Result<Option<String
 }
 
 pub fn get_disk_from_part(block_device: &str) -> std::io::Result<String> {
-    let input_path = std::path::PathBuf::from(block_device); 
+    let input_path = std::path::PathBuf::from(block_device);
     let block_device_name_oss = match input_path.file_name() {
         Some(name) => name,
-        None => return Err(std::io::Error::new(std::io::ErrorKind::Other, "Unable to get block device name")),
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Unable to get block device name",
+            ))
+        }
     };
     let block_device_name = match block_device_name_oss.to_str() {
         Some(name) => name,
-        None => return Err(std::io::Error::new(std::io::ErrorKind::Other, "Unable to get str from OsStr")),
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Unable to get str from OsStr",
+            ))
+        }
     };
 
-    let mut sys_block_link = std::fs::read_link(std::path::PathBuf::from(format!("/sys/class/block/{}", block_device_name)))?;
+    let mut sys_block_link = std::fs::read_link(std::path::PathBuf::from(format!(
+        "/sys/class/block/{}",
+        block_device_name
+    )))?;
 
     sys_block_link.pop();
 
     let disk_oss = match sys_block_link.file_name() {
         Some(name) => name,
-        None => return Err(std::io::Error::new(std::io::ErrorKind::Other, "Unable to get disk filename")),
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Unable to get disk filename",
+            ))
+        }
     };
     let disk = match disk_oss.to_str() {
         Some(name) => name,
-        None => return Err(std::io::Error::new(std::io::ErrorKind::Other, "Unable to get str from OsStr")),
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Unable to get str from OsStr",
+            ))
+        }
     };
 
     Ok(format!("/dev/{}", disk))
@@ -95,7 +118,10 @@ fn probe_partition(partition: BlkidPartition) -> libblkid_rs::Result<RootPartiti
 
     let ptype = partition.get_type_string()?;
     if ptype != "3cb8e202-3b7e-47dd-8a3c-7ff2a13cfcec" {
-        return Err(BlkidErr::Other(format!("Not cros rootfs type uuid: {:?} type: {:?}", puuid, ptype)));
+        return Err(BlkidErr::Other(format!(
+            "Not cros rootfs type uuid: {:?} type: {:?}",
+            puuid, ptype
+        )));
     }
 
     let pname = match partition.get_name()? {
@@ -142,7 +168,9 @@ fn probe_device(device: String) -> libblkid_rs::Result<Vec<RootPartition>> {
     Ok(rootparts)
 }
 
-fn probe_device_result(device: String) -> libblkid_rs::Result<Vec<libblkid_rs::Result<RootPartition>>> {
+fn probe_device_result(
+    device: String,
+) -> libblkid_rs::Result<Vec<libblkid_rs::Result<RootPartition>>> {
     let mut probe = BlkidProbe::new_from_filename(std::path::Path::new(&device))?;
 
     probe.enable_superblocks(false)?;
@@ -171,10 +199,12 @@ fn probe_device_result(device: String) -> libblkid_rs::Result<Vec<libblkid_rs::R
     Ok(rootparts)
 }
 
-pub fn scan_for_usable_root_partitions_result() -> Vec<libblkid_rs::Result<Vec<libblkid_rs::Result<RootPartition>>>> {
+pub fn scan_for_usable_root_partitions_result(
+) -> Vec<libblkid_rs::Result<Vec<libblkid_rs::Result<RootPartition>>>> {
     let devices = scan_for_devices();
 
-    let mut rootparts: Vec<libblkid_rs::Result<Vec<libblkid_rs::Result<RootPartition>>>> = Vec::new();
+    let mut rootparts: Vec<libblkid_rs::Result<Vec<libblkid_rs::Result<RootPartition>>>> =
+        Vec::new();
 
     for device in devices {
         let devrootparts = probe_device_result(device);

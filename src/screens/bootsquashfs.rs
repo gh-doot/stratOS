@@ -17,7 +17,8 @@ pub fn show_screen(termsize: tui::Point) {
 
     tui::flush();
 
-    let files = disks::get_squashfs_files_in_directory("/data/").expect("Failed to get files in data directory");
+    let files = disks::get_squashfs_files_in_directory("/data/")
+        .expect("Failed to get files in data directory");
     let files_len = files.len();
 
     tui::clear();
@@ -65,7 +66,7 @@ pub fn show_screen(termsize: tui::Point) {
             '\n' => {
                 selected_option = true;
                 break;
-            },
+            }
             'd' => {
                 selected_option = true;
                 init_cmd = "/bin/bash";

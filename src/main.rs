@@ -155,8 +155,7 @@ fn main() {
         let stateful_part =
             utils::get_partition(&usb_dev, 1).expect("Failed to get partition 1 of disk");
 
-        utils::run_fsck(&stateful_part)
-            .expect("Failed to check data partition for errors");
+        utils::run_fsck(&stateful_part).expect("Failed to check data partition for errors");
 
         unistd::mkdir("/data", stat::Mode::S_IRWXU)
             .expect("Failed to create data partition mountpoint");

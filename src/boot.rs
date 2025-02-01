@@ -1,18 +1,18 @@
+use crate::screens; // Adjust if `common` is nested under `screens`
+use crate::tui;
+use crate::utils;
+use crate::TERMIOS_BACKUP;
 use nix::mount;
 use nix::sys::stat;
 use nix::unistd;
 use std::ffi::CString;
 use std::fs;
-use std::io::{self,Write,Read};
+use std::io::{self, Read, Write};
 use std::os::linux::fs::MetadataExt;
-use crate::tui;
-use crate::TERMIOS_BACKUP;
-use crate::screens; // Adjust if `common` is nested under `screens`
-use crate::utils;
 pub fn update_status(message: &str, termsize: tui::Point, center: tui::Point) {
     // Clear the area where the status message will go, but not the box itself
     tui::move_cursor(tui::Point {
-        row: center.row + 1, // Just below the "Mounting" text
+        row: center.row + 1,                          // Just below the "Mounting" text
         col: center.col - (message.len() / 2) as u16, // Center the message
     });
 
@@ -57,7 +57,9 @@ pub fn boot_from_partition(dev: String, termsize: tui::Point, init_cmd: &str) {
     io::stdout().flush().expect("Failed to flush stdout");
 
     let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Failed to read input");
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
     let input = input.trim().to_lowercase();
 
     if input == "y" || input == "yes" {
@@ -185,7 +187,6 @@ fn boot_from_newroot(termsize: tui::Point, center: tui::Point, keep_oldroot: boo
         let _ = lsb_release.read_to_string(&mut lsb_release_contents);
         is_chromeos = lsb_release_contents.to_lowercase().contains("chromeos");
     }
-
 
     update_status("Unmounting /sys...", termsize, center);
     mount::umount2("/sys", mount::MntFlags::MNT_DETACH).expect("Failed to unmount /sys");
